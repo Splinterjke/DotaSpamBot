@@ -29,8 +29,8 @@ namespace DotaSpamBot
 
         private bool isRunning;
 
-        private string user = "emin38453";
-        private string pass = "46702294Spice";
+        private string user = "";
+        private string pass = "";
 
         private string authCode, twoFactorAuth;
         private List<ChatChannel> targetChannels;
