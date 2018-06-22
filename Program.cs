@@ -1,16 +1,21 @@
 ﻿using Dota2.GC;
+using Dota2.GC.Dota.Internal;
+using Newtonsoft.Json;
 using SteamKit2;
 using SteamKit2.Discovery;
+using SteamKit2.GC;
+using SteamKit2.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using static Dota2.GC.Dota.Internal.CMsgDOTARequestChatChannelListResponse;
 
 namespace DotaSpamBot
 {
-    // define our debuglog listener
     class DebugListener : IDebugListener
     {
         public void WriteLine(string category, string msg)
@@ -24,16 +29,14 @@ namespace DotaSpamBot
         private SteamClient steamClient;
         private CallbackManager manager;
         private DotaGCHandler dota;
-
+        private ConfigModel botConfig;
         private SteamUser steamUser;
 
         private bool isRunning;
-
-        private string user = "emin38453";
-        private string pass = "46702294Spice";
-
+        private bool dotaIsReady;
         private string authCode, twoFactorAuth;
         private List<ChatChannel> targetChannels;
+        private List<string> processedChannels = new List<string>();
         private int proccessedCount;
         private int currentProccessedCount;
         private int totalProccessedCount;
@@ -48,6 +51,44 @@ namespace DotaSpamBot
         {
             try
             {
+                if (File.Exists("config.json"))
+                {
+                    using (var sr = new StreamReader("config.json"))
+                    {
+                        string jsonString = string.Empty;
+                        string line;
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            jsonString += line;
+                        }
+                        botConfig = JsonConvert.DeserializeObject<ConfigModel>(jsonString);
+                        if (string.IsNullOrEmpty(botConfig.login))
+                        {
+                            Console.WriteLine("ERROR: Steam login is empty");
+                            await Task.Delay(3000);
+                            return;
+                        }
+                        if (string.IsNullOrEmpty(botConfig.password))
+                        {
+                            Console.WriteLine("ERROR: Steam password is empty");
+                            await Task.Delay(3000);
+                            return;
+                        }
+                        if (string.IsNullOrEmpty(botConfig.msgText))
+                        {
+                            Console.WriteLine("ERROR: Message content is empty");
+                            await Task.Delay(3000);
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ERROR: config.json file is not found");
+                    await Task.Delay(3000);
+                    return;
+                }
+
                 //DebugLog.AddListener(new DebugListener());
                 //DebugLog.Enabled = true;
                 //create our steamclient instance
@@ -95,6 +136,7 @@ namespace DotaSpamBot
                 manager.Subscribe<DotaGCHandler.ConnectionStatus>(OnConnectionStatus);
                 manager.Subscribe<DotaGCHandler.JoinChatChannelResponse>(OnJoinChatChannel);
                 manager.Subscribe<DotaGCHandler.ChatChannelListResponse>(OnChatChannelList);
+                manager.Subscribe<DotaGCHandler.GCWelcomeCallback>(OnDotaWelcome);
 
                 isRunning = true;
                 Console.WriteLine("Connecting to Steam...");
@@ -112,14 +154,49 @@ namespace DotaSpamBot
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception occured: {ex.GetType()}: {ex.Message}");
+                dotaIsReady = false;
                 Run().GetAwaiter().GetResult();
             }
             await Task.Delay(-1);
         }
 
+        private void OnDotaWelcome(DotaGCHandler.GCWelcomeCallback callback)
+        {
+            if (!dotaIsReady && dota.Ready)
+            {
+                dotaIsReady = true;
+                Console.WriteLine($"Requesting channel list...");
+                dota.RequestChatChannelList();
+            }
+        }
+
+        //public void Send(IClientGCMsg msg)
+        //{
+        //    var clientMsg = new ClientMsgProtobuf<CMsgGCClient>(EMsg.ClientToGC);
+
+        //    clientMsg.Body.msgtype = MsgUtil.MakeGCMsg(msg.MsgType, msg.IsProto);
+        //    clientMsg.Body.appid = (uint)570;
+
+        //    clientMsg.Body.payload = msg.Serialize();
+
+        //    steamClient.Send(clientMsg);
+        //}
+
         private void OnConnectionStatus(DotaGCHandler.ConnectionStatus callback)
         {
-            Console.WriteLine($"Connection status: {callback.result.status}");
+            if (callback.result.status == Dota2.GC.Internal.GCConnectionStatus.GCConnectionStatus_NO_SESSION_IN_LOGON_QUEUE)
+            {
+                Console.WriteLine("Waiting for LOGON QUEUE 10 seconds...");
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                return;
+            }
+            if (callback.result.status != Dota2.GC.Internal.GCConnectionStatus.GCConnectionStatus_HAVE_SESSION)
+            {
+                dotaIsReady = false;
+                if (dota.Ready)
+                    dota.Stop();
+                dota.Start();
+            }
         }
 
         private void OnBeginSession(DotaGCHandler.BeginSessionResponse callback)
@@ -131,8 +208,13 @@ namespace DotaSpamBot
         {
             Console.WriteLine("Updating channel list...");
             var chatChannels = callback.result.channels;
-            targetChannels = chatChannels.FindAll(x => (x.channel_name.Contains("Party") || x.channel_name.Contains("PARTY") || x.channel_name.Contains("ПАТИ") || x.channel_name.Contains("пати") || x.channel_name.Contains("TestChannel") || x.channel_name.Contains("St. Petersburg") || x.channel_name.Contains("Moscow") || x.channel_name.Contains("Russ") || x.channel_name.Contains("Ищу") || x.channel_name.Contains("ищу") || x.channel_name.Contains("абуз") || x.channel_name.Contains("Абуз") || x.channel_name.Contains("чит") || x.channel_name.Contains("Набор") || x.channel_name.Contains("Abuse") || x.channel_name.Contains("abuse")) && !x.channel_name.Contains("2016") && !x.channel_name.Contains("pass") && !x.channel_name.Contains("Battle") && !x.channel_name.Contains("Battlepass") && !x.channel_name.Contains("Compendium") && !x.channel_name.Contains("compendium") && x.num_members > 0);
+            targetChannels = chatChannels.FindAll(x => x.num_members >= botConfig.minChannelUsersCount);
+            if (processedChannels != null && processedChannels.Count != 0)
+            {
+                targetChannels = targetChannels.FindAll(x => !processedChannels.All(x.channel_name.ToLower().Contains));
+            }
             //targetChannels = chatChannels.FindAll(x => x.channel_name.Contains("TestChannel") || x.channel_name.Contains("DotaMeat"));
+            processedChannels?.Clear();
             Console.WriteLine($"{targetChannels?.Count} channels found");
             JoinChannels().GetAwaiter().GetResult();
         }
@@ -149,15 +231,16 @@ namespace DotaSpamBot
                 Console.WriteLine($"Sending message to {callback.result?.channel_name} ({callback.result?.channel_id})");
                 SendMessage(callback.result.channel_id);
                 Console.WriteLine($"Leaving channel {callback.result?.channel_name} ({callback.result?.channel_id})");
-                dota.LeaveChatChannel(callback.result.channel_id);                
+                dota.LeaveChatChannel(callback.result.channel_id);
             }
             proccessedCount++;
             totalProccessedCount++;
-            System.Threading.Thread.Sleep(7000);
+            System.Threading.Thread.Sleep(10000);
             if (steamClient.IsConnected && targetChannels != null && targetChannels.Count != 0)
             {
                 if (totalProccessedCount == targetChannels.Count)
                 {
+                    processedChannels?.Clear();
                     currentProccessedCount = 0;
                     totalProccessedCount = 0;
                     proccessedCount = 0;
@@ -220,23 +303,28 @@ namespace DotaSpamBot
             }
             File.WriteAllText("cellid.txt", callback.CellID.ToString());
             Console.WriteLine("Successfully logged on!");
-            Console.WriteLine($"Starting dota...");
-            dota.Start();
-            System.Threading.Thread.Sleep(2000);
-            Console.WriteLine($"Requesting channel list...");
-            dota.RequestChatChannelList();
+            if (!dota.Ready)
+            {
+                Console.WriteLine($"Starting dota...");
+                dota.Start();
+            }
         }
 
         private void OnDisconnected(SteamClient.DisconnectedCallback callback)
         {
-            Console.WriteLine("Disconnected from Steam, reconnecting in 5...");
+            dotaIsReady = false;
+            Console.WriteLine("Disconnected from Steam, reconnecting in 5 seconds...");
             System.Threading.Thread.Sleep(5000);
+            if (dota != null && dota.Ready)
+                dota.Stop();
+            if (steamClient.IsConnected)
+                steamClient.Disconnect();
             steamClient.Connect();
         }
 
         private void OnConnected(SteamClient.ConnectedCallback callback)
         {
-            Console.WriteLine($"Connected to Steam! Logging in '{user}'...");
+            Console.WriteLine($"Connected to Steam! Logging in '{botConfig.login}'...");
             byte[] sentryHash = null;
             if (File.Exists("sentry.bin"))
             {
@@ -246,8 +334,8 @@ namespace DotaSpamBot
             }
             steamUser.LogOn(new SteamUser.LogOnDetails
             {
-                Username = user,
-                Password = pass,
+                Username = botConfig.login,
+                Password = botConfig.password,
                 // in this sample, we pass in an additional authcode
                 // this value will be null (which is the default) for our first logon attempt
                 AuthCode = authCode,
@@ -299,7 +387,6 @@ namespace DotaSpamBot
                 LastError = 0,
 
                 OneTimePassword = callback.OneTimePassword,
-
                 SentryFileHash = sentryHash,
             });
 
@@ -315,6 +402,7 @@ namespace DotaSpamBot
                 iters = targetChannels.Count - currentProccessedCount;
             for (int i = 0; i < iters; i++)
             {
+                processedChannels.Add(targetChannels[currentProccessedCount + i].channel_name);
                 dota.JoinChatChannel(targetChannels[currentProccessedCount + i].channel_name);
             }
             return Task.CompletedTask;
@@ -322,8 +410,8 @@ namespace DotaSpamBot
 
         private void SendMessage(ulong channelId)
         {
-            var message = "Устал проигрывать? МАПХАК УЖЕ ЗДЕСЬ! Только самые актуальные ЧИТЫ на DotaMeat.com";            
-            dota.SendChannelMessage(channelId, message);            
+            var message = botConfig.msgText;
+            dota.SendChannelMessage(channelId, message);
         }
     }
 }
