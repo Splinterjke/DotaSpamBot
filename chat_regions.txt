@@ -1,0 +1,249 @@
+Nazran, Ingush
+Maykop, Adygey
+Georgievsk, Stavropol'
+Pyatigorsk, Stavropol'
+Kislovodsk, Stavropol'
+Nevinnomyssk, Stavropol'
+Severomorsk, Murmansk
+Apatity, Murmansk
+Kolpino, City of St. Petersburg
+Shuya, Ivanovo
+Kineshma, Ivanovo
+Balakhna, Nizhegorod
+Arzamas, Nizhegorod
+Rzhev, Tver'
+Vyshnniy Volochek, Tver'
+Yelets, Lipetsk
+Orekhovo-Zuevo, Moskovsskaya
+Klin, Moskovsskaya
+Sergiyev Posad, Moskovsskaya
+Kolomna, Moskovsskaya
+Bataysk, Rostov
+Taganrog, Rostov
+Novocherkassk, Rostov
+Kamensk Shakhtinskiy, Rostov
+Novoshakhtinsk, Rostov
+Aleksin, Tula
+Novomoskovsk, Tula
+Shchekino, Tula
+Kropotkin, Krasnodar
+Michurinsk, Tambov
+Borisoglebsk, Voronezh
+Oktyabrskiy, Bashkortostan
+Kirovo-Chepetsk, Kirov
+Krasnoturinsk, Sverdlovsk
+Asbest, Sverdlovsk
+Novotroitsk, Orenburg
+Buguruslan, Orenburg
+Chapayevsk, Samara
+Syzran, Samara
+Novokuybishevsk, Samara
+Naberezhnyye Chelny, Tatarstan
+Zelenodolsk, Tatarstan
+Leninogorsk, Tatarstan
+Bugulma, Tatarstan
+Nefteyugansk, Khanty-Mansiy
+Leninsk Kuznetsky, Kemerovo
+Anzhero Sudzhensk, Kemerovo
+Kiselevsk, Kemerovo
+Chernogorsk, Khakass
+Iskitim, Novosibirsk
+Arsenyev, Primor'ye
+Solikamsk, Perm'
+Cherkessk, Karachay-Cherkess
+Vladikavkaz, North Ossetia
+Borovichi, Novgorod
+Tikhvin, Leningrad
+Gatchina, Leningrad
+Klintsy, Bryansk
+Roslavl, Smolensk
+Vyazma, Smolensk
+Dzerzhinsk, Nizhegorod
+Vyska, Nizhegorod
+Kimry, Tver'
+Cherepovets, Vologda
+Rybinsk, Yaroslavl'
+Kaluga
+Obninsk, Kaluga
+Zheleznogorsk, Kursk
+Yegoryevsk, Moskovsskaya
+Podolsk, Moskovsskaya
+Solnechnogorsk, Moskovsskaya
+Noginsk, Moskovsskaya
+Serpukhov, Moskovsskaya
+Livny, Orel
+Salsk, Rostov
+Shakhty, Rostov
+Kamyshin, Volgograd
+Volzhskiy, Volgograd
+Mikhaylovka, Volgograd
+Starsy Oskol, Belgorod
+Tuapse, Krasnodar
+Gelendzhik, Krasnodar
+Labinsk, Krasnodar
+Armavir, Krasnodar
+Tikhoretsk, Krasnodar
+Yeysk, Krasnodar
+Saransk, Mordovia
+Kuznetsk, Penza
+Kovrov, Vladimir
+Murom, Vladimir
+Sibay, Bashkortostan
+Kumertau, Bashkortostan
+Salavat, Bashkortostan
+Belebey, Bashkortostan
+Tuymazy, Bashkortostan
+Neftekamsk, Bashkortostan
+Troitsk, Chelyabinsk
+Miass, Chelyabinsk
+Kyshtym, Chelyabinsk
+Shadrinsk, Kurgan
+Nakhodka, Yamal-Nenets
+Yoshkar Ola, Mariy-El
+Kamensk Uralskiy, Sverdlovsk
+Polevskoy, Sverdlovsk
+Nizhnyaya Tura, Sverdlovsk
+Sarapul, Udmurt
+Votkinsk, Udmurt
+Glazov, Udmurt
+Buzuluk, Orenburg
+Otradnyy, Samara
+Tolyatti, Samara
+Engels, Saratov
+Volsk, Saratov
+Balashov, Saratov
+Almetyevsk, Tatarstan
+Chistopol, Tatarstan
+Nizhnekamsk, Tatarstan
+Dimitrovgrad, Ul'yanovsk
+Kogalym, Khanty-Mansiy
+Ishim, Tyumen'
+Biysk, Altay
+Novoaltaysk, Altay
+Yurga, Kemerovo
+Kaspiysk, Dagestan
+Derbent, Dagestan
+Buynaksk, Dagestan
+Sayanogorsk, Krasnoyarsk
+Belogorsk, Amur
+Kungur, Perm'
+Krasnokamsk, Perm'
+Chusovoy, Perm'
+Velikiy Novgorod, Novgorod
+Velikiye Luki, Pskov
+Severodvinsk, Arkhangel'sk
+Kursk
+Tula
+Tambov
+Sterlitamak, Bashkortostan
+Kurgan
+Novy Urengoy, Yamal-Nenets
+Noyabrsk, Yamal-Nenets
+Syktyvkar, Komi
+Ukhta, Komi
+Serov, Sverdlovsk
+Cheboksary, Chuvash
+Orsk, Orenburg
+Balakovo, Saratov
+Nyagan, Khanty-Mansiy
+Khanty Mansiysk, Khanty-Mansiy
+Nizhenvartovsk, Khanty-Mansiy
+Tobolsk, Tyumen'
+Rubtsovsk, Altay
+Gorno Altaysk, Gorno-Altay
+Prokopyevsk, Kemerovo
+Makhachkala, Dagestan
+Noginsk, Evenk
+Tayshet, Irkutsk
+Usolye Sibirskoye, Irkutsk
+Cheremkhovo, Irkutsk
+Zima, Irkutsk
+Tulun, Irkutsk
+Kansk, Krasnoyarsk
+Achinsk, Krasnoyarsk
+Lesosibirsk, Krasnoyarsk
+Svobodnyy, Amur
+Krasnokamensk, Chita
+Nakhodka, Primor'ye
+Ussuriysk, Primor'ye
+Neryungri, Sakha (Yakutia)
+Birobidzhan, Yevrey
+Komsomolsk na Amure, Khabarovsk
+Oktyabrskiy, Kamchatka
+Kandalaksha, Murmansk
+Vyborg, Leningrad
+Kotlas, Arkhangel'sk
+Ivanovo
+Kostroma
+Lipetsk
+Orel
+Volgodonsk, Rostov
+Belgorod
+Novorossiysk, Krasnodar
+Vladimir
+Zlatoust, Chelyabinsk
+Pervouralsk, Sverdlovsk
+Izhevsk, Udmurt
+Elista, Kalmyk
+Berezniki, Perm'
+Naltchik, Kabardin-Balkar
+Stavropol
+Kaliningrad
+Pskov
+Bryansk
+Smolensk
+Petrozavodsk, Karelia
+Tver
+Vologda
+Yaroslavl
+Rostov
+Sochi, Krasnodar
+Krasnodar
+Penza
+Voronezh
+Magnitogorsk, Chelyabinsk
+Chelyabinsk
+Vorkuta, Komi
+Kirov
+Nizhny Tagil, Sverdlovsk
+Astrakhan
+Orenburg
+Saratov
+Ulyanovsk, Ul'yanovsk
+Omsk
+Tyumen
+Novokuznetsk, Kemerovo
+Kemerovo
+Groznyy, Chechnya
+Ust-Ulimsk, Irkutsk
+Angarsk, Irkutsk
+Abakan, Krasnoyarsk
+Norilsk, Taymyr
+Kyzyl, Tuva
+Ulan Ude, Buryat
+Blagoveshchensk, Amur
+Khabarovsk
+Yuzhno Sakhalinsk, Sakhalin
+Tomsk
+Murmansk
+Archangel, Arkhangel'sk
+Nizhny Novgorod, Nizhegorod
+Volgograd
+Ufa, Bashkortostan
+Yekaterinburg, Sverdlovsk
+Samara
+Kazan, Tatarstan
+Surgut, Khanty-Mansiy
+Barnaul, Altay
+Novosibirsk
+Bratsk, Irkutsk
+Irkutsk
+Krasnoyarsk
+Chita
+Vladivostok, Primor'ye
+Yakutsk, Sakha (Yakutia)
+Magadan, Maga Buryatdan
+Perm
+Petropavlovsk Kamchatskiy, Kamchatka
+St. Petersburg, City of St. Petersburg
+Moscow, Moskva

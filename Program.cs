@@ -36,10 +36,8 @@ namespace DotaSpamBot
         private bool dotaIsReady;
         private string authCode, twoFactorAuth;
         private List<ChatChannel> targetChannels;
-        private List<string> processedChannels = new List<string>();
-        private int proccessedCount;
-        private int currentProccessedCount;
         private int totalProccessedCount;
+        private string[] chatRegions;
 
         static void Main(string[] args)
         {
@@ -87,6 +85,10 @@ namespace DotaSpamBot
                     Console.WriteLine("ERROR: config.json file is not found");
                     await Task.Delay(3000);
                     return;
+                }
+                if(File.Exists("chat_regions.txt"))
+                {
+                    chatRegions = File.ReadAllLines("chat_regions.txt");
                 }
 
                 //DebugLog.AddListener(new DebugListener());
@@ -143,19 +145,16 @@ namespace DotaSpamBot
 
                 // initiate the connection
                 steamClient.Connect();
-
-                // create our callback handling loop
                 while (isRunning)
                 {
-                    // in order for the callbacks to get routed, they need to be handled by the manager
-                    manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
+                    manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));                    
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception occured: {ex.GetType()}: {ex.Message}");
                 dotaIsReady = false;
-                Run().GetAwaiter().GetResult();
+                steamClient.Disconnect();
             }
             await Task.Delay(-1);
         }
@@ -186,6 +185,7 @@ namespace DotaSpamBot
         {
             if (callback.result.status == Dota2.GC.Internal.GCConnectionStatus.GCConnectionStatus_NO_SESSION_IN_LOGON_QUEUE)
             {
+                dotaIsReady = false;
                 Console.WriteLine("Waiting for LOGON QUEUE 10 seconds...");
                 Thread.Sleep(TimeSpan.FromSeconds(10));
                 return;
@@ -208,22 +208,26 @@ namespace DotaSpamBot
         {
             Console.WriteLine("Updating channel list...");
             var chatChannels = callback.result.channels;
+            targetChannels?.Clear();
             targetChannels = chatChannels.FindAll(x => x.num_members >= botConfig.minChannelUsersCount);
-            if (processedChannels != null && processedChannels.Count != 0)
+            //targetChannels = new List<ChatChannel> { new ChatChannel { channel_name = "Kazan, TT", channel_type = DOTAChatChannelType_t.DOTAChannelType_Regional } };
+            if(chatRegions != null && chatRegions.Length > 0)
             {
-                targetChannels = targetChannels.FindAll(x => !processedChannels.All(x.channel_name.ToLower().Contains));
+                targetChannels.AddRange(chatRegions.Select(x => new ChatChannel { channel_name = x }));
             }
-            //targetChannels = chatChannels.FindAll(x => x.channel_name.Contains("TestChannel") || x.channel_name.Contains("DotaMeat"));
-            processedChannels?.Clear();
             Console.WriteLine($"{targetChannels?.Count} channels found");
-            JoinChannels().GetAwaiter().GetResult();
+            JoinChannels();
         }
 
         private void OnJoinChatChannel(DotaGCHandler.JoinChatChannelResponse callback)
         {
-            if (callback.result.result.ToString() != "JOIN_SUCCESS")
+            if (callback.result.result == CMsgDOTAJoinChatChannelResponse.Result.USER_IN_TOO_MANY_CHANNELS)
             {
-                targetChannels.RemoveAt(totalProccessedCount);
+                Console.WriteLine($"Connected channels limit exceed");
+                dota.LeaveChatChannel(callback.result.channel_id);
+            }
+            if (callback.result.result != CMsgDOTAJoinChatChannelResponse.Result.JOIN_SUCCESS)
+            {
                 Console.WriteLine($"Failed to join {callback.result?.channel_name} ({callback.result?.channel_id})");
             }
             else
@@ -233,26 +237,15 @@ namespace DotaSpamBot
                 Console.WriteLine($"Leaving channel {callback.result?.channel_name} ({callback.result?.channel_id})");
                 dota.LeaveChatChannel(callback.result.channel_id);
             }
-            proccessedCount++;
-            totalProccessedCount++;
-            System.Threading.Thread.Sleep(10000);
+            totalProccessedCount++;            
             if (steamClient.IsConnected && targetChannels != null && targetChannels.Count != 0)
             {
                 if (totalProccessedCount == targetChannels.Count)
-                {
-                    processedChannels?.Clear();
-                    currentProccessedCount = 0;
+                {                    
                     totalProccessedCount = 0;
-                    proccessedCount = 0;
-                    //isAdvSpam = !isAdvSpam;
                     dota.RequestChatChannelList();
                     return;
-                }
-
-                if (proccessedCount == 5)
-                {
-                    JoinChannels().GetAwaiter().GetResult();
-                }
+                }                
                 Console.WriteLine($"Processed channels count: {totalProccessedCount}");
             }
         }
@@ -393,19 +386,13 @@ namespace DotaSpamBot
             Console.WriteLine("Updating sentryfile has been done!");
         }
 
-        private Task JoinChannels()
+        private async void JoinChannels()
         {
-            currentProccessedCount += proccessedCount;
-            proccessedCount = 0;
-            var iters = targetChannels?.Count < 5 ? targetChannels.Count : 5;
-            if ((targetChannels.Count - currentProccessedCount) < 5)
-                iters = targetChannels.Count - currentProccessedCount;
-            for (int i = 0; i < iters; i++)
+            for (int i = 0; i < targetChannels.Count; i++)
             {
-                processedChannels.Add(targetChannels[currentProccessedCount + i].channel_name);
-                dota.JoinChatChannel(targetChannels[currentProccessedCount + i].channel_name);
+                dota.JoinChatChannel(targetChannels[i].channel_name, targetChannels[i].channel_type);
+                await Task.Delay(10000);
             }
-            return Task.CompletedTask;
         }
 
         private void SendMessage(ulong channelId)
