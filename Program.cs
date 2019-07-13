@@ -237,16 +237,15 @@ namespace DotaSpamBot
                 Console.WriteLine($"Leaving channel {callback.result?.channel_name} ({callback.result?.channel_id})");
                 dota.LeaveChatChannel(callback.result.channel_id);
             }
-            totalProccessedCount++;            
+            totalProccessedCount++;
+            Console.WriteLine($"Processed channels count: {totalProccessedCount}");
             if (steamClient.IsConnected && targetChannels != null && targetChannels.Count != 0)
             {
-                if (totalProccessedCount == targetChannels.Count)
+                if (totalProccessedCount == targetChannels.Count-1)
                 {                    
                     totalProccessedCount = 0;
                     dota.RequestChatChannelList();
-                    return;
-                }                
-                Console.WriteLine($"Processed channels count: {totalProccessedCount}");
+                }           
             }
         }
 
@@ -300,6 +299,12 @@ namespace DotaSpamBot
             {
                 Console.WriteLine($"Starting dota...");
                 dota.Start();
+            }
+            else
+            {
+                dotaIsReady = true;
+                Console.WriteLine($"Requesting channel list...");
+                dota.RequestChatChannelList();
             }
         }
 
